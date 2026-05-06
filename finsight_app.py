@@ -146,7 +146,7 @@ st.markdown("""
 
 # ─── CONSTANTS ───────────────────────────────────────────────────────────────
 ASSETS = {
-    "📈 "🔴 FTSE 100": "^FTSE.L",
+    "🔴 FTSE 100": "^FTSE",
     "🏦 HSBC": "HSBA.L",
     "🛢️ BP": "BP.L",
     "💊 AstraZeneca": "AZN.L",
