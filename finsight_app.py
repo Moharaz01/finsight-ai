@@ -146,7 +146,7 @@ st.markdown("""
 
 # ─── CONSTANTS ───────────────────────────────────────────────────────────────
 ASSETS = {
-    "📈 FTSE 100": "^FTSE",
+    "📈 "🔴 FTSE 100": "^FTSE.L",
     "🏦 HSBC": "HSBA.L",
     "🛢️ BP": "BP.L",
     "💊 AstraZeneca": "AZN.L",
@@ -174,18 +174,27 @@ COLORS = {
 # ─── DATA FUNCTIONS ───────────────────────────────────────────────────────────
 @st.cache_data(ttl=300)
 def fetch_data(ticker, period="2y"):
-    """Fetch financial data from Yahoo Finance"""
-    try:
-        data = yf.download(ticker, period=period, progress=False)
-        if data.empty:
-            return None
-        # Flatten multi-level columns if present
-        if isinstance(data.columns, pd.MultiIndex):
-            data.columns = data.columns.get_level_values(0)
-        data = data.dropna()
-        return data
-    except Exception as e:
-        return None
+    """Fetch financial data from Yahoo Finance with fallback tickers"""
+    
+    # Fallback ticker map for unreliable symbols
+    fallback_map = {
+        "^FTSE": ["^FTSE", "^FTSE.L", "ISF.L", "VUKE.L"],
+    }
+    
+    tickers_to_try = fallback_map.get(ticker, [ticker])
+    
+    for t in tickers_to_try:
+        try:
+            data = yf.download(t, period=period, progress=False)
+            if not data.empty:
+                if isinstance(data.columns, pd.MultiIndex):
+                    data.columns = data.columns.get_level_values(0)
+                data = data.dropna()
+                return data
+        except Exception:
+            continue
+    
+    return None
 
 def calculate_technical_indicators(df):
     """Calculate comprehensive technical indicators"""
